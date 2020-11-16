@@ -5,6 +5,7 @@
 import pygame
 import time
 import random
+import numpy as np
 
 
 def print_hi(name):
@@ -38,9 +39,17 @@ snake_speed = 15    #Amount of frames per second
 font_style = pygame.font.SysFont(None, 50)
 
 
-def our_snake(snake_block,snake_list) :     #Extend the snake
-    for a in snake_list:
-        pygame.draw.rect(dis,black,[a[0],a[1],snake_block,snake_block])
+def our_snake(snake_block,snake_list_np) :     #Extend the snake
+
+    row = snake_list_np.shape
+    a = (row[0]/2)
+
+    for b in range(int(a)):
+        #print("B values", snake_list_np[b*2], " ", snake_list_np[b*2+1])
+        pygame.draw.rect(dis,black,[snake_list_np[b*2],snake_list_np[b*2+1],snake_block,snake_block])
+    #for a in snake_list:
+    #    print("A value in our_snake",a)
+    #    pygame.draw.rect(dis,black,[a[0],a[1],snake_block,snake_block])
 
 
 def message(msg):  # Function for the display output of game over
@@ -55,6 +64,7 @@ clock = pygame.time.Clock()
 
 
 def game_loop():
+
     game_over = False
     game_close = False
 
@@ -72,6 +82,9 @@ def game_loop():
     snake_list = [] #Contains the extended snake including head
     snake_length = 1 #Inital length of snake
 
+    snake_list_np = np.array([])
+
+
     while (not game_over): #The game and display updates happen here
 
         while game_close == True:
@@ -88,7 +101,7 @@ def game_loop():
                         game_loop()
 
         for event in pygame.event.get():  # For input during game
-            print(event)  # For every input print it out
+            #print(event)  # For every input print it out
             if event.type == pygame.QUIT:  # In the case that anything input attempts to close window
                 game_over = True  # Set game_over to true
 
@@ -124,18 +137,36 @@ def game_loop():
         snake_Head.append(x1)
         snake_Head.append(y1)
 
-        snake_list.append(snake_Head)
+        #snake_Head_np = np.array([])
+        #snake_Head_np = np.append(snake_Head_np, [x1,y1])
 
-        if len(snake_list) > snake_length: #Deleting the snake that is no longer there
-            print("snake_list[0] deletion",snake_list[0])
-            del snake_list[0]
+        #snake_list.append(snake_Head)
+        snake_list_np = np.append(snake_list_np,snake_Head)
+        row = snake_list_np.shape
+        snake_len = (row[0] / 2)
 
-        for a in snake_list[:-1]: #Case that snake runs into itself
-            print("a in snake_list: ",a);
-            if a == snake_Head:
+        #if len(snake_list) > snake_length: #Deleting the snake that is no longer there
+        if int(snake_len) > snake_length:
+            #del snake_list[0]
+            snake_list_np = np.delete(snake_list_np, [0,1])
+
+        row = snake_list_np.shape
+        snake_len = (row[0] / 2)
+
+        for a in range(int(snake_len-1)):
+            #print("For loop np ", snake_list_np[a*2], " ", snake_list_np[a*2+1])
+            if(int(snake_list_np[a*2]) == x1 and int(snake_list_np[a*2+1]) == y1):
                 game_close = True
 
-        our_snake(snake_block,snake_list)
+        #for a in snake_list[:-1]: #Case that snake runs into itself
+        #    print("For loop [:-1] ",a)
+        #    #print("a in snake_list: ",a);
+        #    if a == snake_Head:
+        #        game_close = True
+
+
+        #our_snake(snake_block,snake_list,snake_list_np)
+        our_snake(snake_block,snake_list_np)
 
         pygame.draw.rect(dis, blue, [foodx, foody, snake_block, snake_block]) #Draw food pellet
         pygame.draw.rect(dis, black, [x1, y1, snake_block, snake_block])  # position of rectangle 200,150 and then size 10,10
@@ -146,7 +177,7 @@ def game_loop():
             foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
             snake_length = snake_length+1 #Extend snake and replace old food pellet
-            print("Yummy")
+            #print("Yummy")
 
         clock.tick(snake_speed)  # 30 frames for every second
 
@@ -155,6 +186,6 @@ def game_loop():
 
 
 game_loop()
-print("HIT3")
+#print("HIT3")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
