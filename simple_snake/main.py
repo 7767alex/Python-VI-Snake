@@ -38,6 +38,31 @@ snake_speed = 15    #Amount of frames per second
 
 font_style = pygame.font.SysFont(None, 50)
 
+def check_food(obstacle_array) :
+
+    obstacles = obstacle_array.shape
+    num_obstacles = (obstacles[0] / 2)
+
+    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+
+    #print("FOOD X ", foodx)
+    #print("FOOD Y ", foody)
+
+    while(True) :
+        temp = []
+        for a in range(int(num_obstacles)):
+            if (int(obstacle_array[a * 2]) == foodx and int(obstacle_array[a * 2 + 1]) == foody):
+                foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+                foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+                temp = [foodx, foody]
+        temp.append(foodx)
+        temp.append(foody)
+        #print("TEMP", temp)
+        #print("FOOD X ", foodx)
+        #print("FOOD Y ", foody)
+        return temp
+
 
 def our_snake(snake_block,snake_list_np) :     #Extend the snake
 
@@ -596,12 +621,17 @@ def game_loop2():
             if(int(obstacle_array[a*2]) == x1 and int(obstacle_array[a*2+1]) == y1):
                 game_close = True
 
+        #print(foodx)
+        #print(foody)
 
         pygame.display.update()  # Update what is in window
 
         if x1 == foodx and y1 == foody: #Case of head running into food
-            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+            foodx_y = []
+            foodx_y = check_food(obstacle_array)
+            #print("FOOD X AND Y :", foodx_y)
+            foodx = foodx_y[0]#round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+            foody = foodx_y[1]#round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
             snake_length = snake_length+1 #Extend snake and replace old food pellet
             #print("Yummy")
 
@@ -720,6 +750,7 @@ def game_loop():
         pygame.display.update()  # Update what is in window
 
         if x1 == foodx and y1 == foody: #Case of head running into food
+            #check_food(obstacle_array,foodx,foody)
             foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
             snake_length = snake_length+1 #Extend snake and replace old food pellet
