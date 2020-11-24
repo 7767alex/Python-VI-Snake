@@ -38,6 +38,10 @@ snake_speed = 15    #Amount of frames per second
 
 font_style = pygame.font.SysFont(None, 50)
 
+backgroundmenu = pygame.image.load('menu.png')
+backgroundmenu = pygame.transform.scale(backgroundmenu, (dis_width, dis_height))
+pausemenu = pygame.image.load('gamepause.png')
+pausemenu = pygame.transform.scale(pausemenu, (dis_width, dis_height))
 
 def our_snake(snake_block,snake_list_np) :     #Extend the snake
 
@@ -61,6 +65,35 @@ pygame.display.update()  # Update used to update any parameters passed onto the 
 game_over = False  # Bool value that indicates if game should end
 game_close = False
 clock = pygame.time.Clock()
+
+
+def main_menu():
+    menu = True
+    while menu:
+       
+        for event in pygame.event.get(): 
+            if event.type == pygame.QUIT:        #User clicks x to close window
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:     #User presses Q
+                if event.key == pygame.K_q: 
+                    pygame.quit()
+                    quit()
+                if event.key == pygame.K_1:      #User presses 1
+                    game_loop1()
+                    menu = False
+                if event.key == pygame.K_2:      #User presses 2
+                    game_loop2()
+                    menu = False
+
+        
+        dis.blit(backgroundmenu, (0,0))
+        pygame.display.update()
+        
+
+            
+
+
 
 
 def game_loop1():
@@ -87,8 +120,7 @@ def game_loop1():
     while (not game_over): #The game and display updates happen here
 
         while game_close == True:
-            dis.fill(white)
-            message("Press Q to quit or C to Play")
+            dis.blit(pausemenu, (0,0))
             pygame.display.update()
 
             for event in pygame.event.get(): #In the case of game over start or quit
@@ -97,7 +129,9 @@ def game_loop1():
                         game_over = True
                         game_close = False
                     if event.key == pygame.K_c: #Case of start again, loop again
-                        game_loop()
+                        game_loop1()
+                    if event.key == pygame.K_m: #Go back to main menu
+                        main_menu()
 
         for event in pygame.event.get():  # For input during game
             #print(event)  # For every input print it out
@@ -415,8 +449,7 @@ def game_loop2():
     while (not game_over): #The game and display updates happen here
 
         while game_close == True:
-            dis.fill(white)
-            message("Press Q to quit or C to Play")
+            dis.blit(pausemenu, (0,0))
             pygame.display.update()
 
             for event in pygame.event.get(): #In the case of game over start or quit
@@ -425,7 +458,9 @@ def game_loop2():
                         game_over = True
                         game_close = False
                     if event.key == pygame.K_c: #Case of start again, loop again
-                        game_loop()
+                        game_loop2()
+                    if event.key == pygame.K_m: #Go back to main menu
+                        main_menu()
 
         for event in pygame.event.get():  # For input during game
             #print(event)  # For every input print it out
@@ -615,7 +650,7 @@ def game_loop2():
     quit()  # Uninitialize everything at the end
 
 def game_loop():
-
+    
     game_over = False
     game_close = False
 
@@ -634,6 +669,9 @@ def game_loop():
     snake_length = 1 #Inital length of snake
 
     snake_list_np = np.array([])
+
+
+
 
     while (not game_over): #The game and display updates happen here
 
@@ -731,7 +769,7 @@ def game_loop():
     quit()  # Uninitialize everything at the end
 
 
-game_loop2()
+main_menu()
 #print("HIT3")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
