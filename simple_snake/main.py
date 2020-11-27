@@ -763,7 +763,7 @@ def game_loop():
             snake_length = snake_length+1 #Extend snake and replace old food pellet
             #print("Yummy")
 
-        next_move = ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody)
+        next_move = ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1)
         print("NEXT MOVE : ", next_move)
 
         clock.tick(snake_speed)  # 30 frames for every second
@@ -771,7 +771,7 @@ def game_loop():
     pygame.quit()
     quit()  # Uninitialize everything at the end
 
-def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody):
+def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
     rows = 2+(dis_height/10)
     columns = 2+(dis_width/10)
     num_cells = rows*columns
@@ -791,10 +791,10 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody):
     row = snake_list_np.shape
     snake_len = (row[0] / 2)
 
-    snake_headx = snake_list_np[int(snake_len)]
-    snake_headx = int(snake_headx)/10
-    snake_heady = snake_list_np[int(snake_len)]
-    snake_heady = int(snake_heady) / 10
+    snake_headx = x1/10
+    #snake_headx = int(snake_headx)/10
+    snake_heady = y1/10
+    #snake_heady = int(snake_heady) / 10
 
     #print("HEAD X : ", snake_headx, " HEAD Y : ", snake_heady)
 
@@ -808,12 +808,12 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody):
     grid[int(foody) + 1][int(foodx)+1] = 100
 
 
-    if int(snake_len) > 1 :
-        for a in range(int(snake_len)-1) :
-            x = int(snake_list_np[a * 2])/10
-            y = int(snake_list_np[a * 2 + 1])/10
-            grid[int(y)+1][int(x)+1] = 8
-            print("X and Y coordinates: ", x, " ", y)
+
+    for a in range(int(snake_len)-1) :
+        x = int(snake_list_np[a * 2])/10
+        y = int(snake_list_np[a * 2 + 1])/10
+        grid[int(y)+1][int(x)+1] = 8
+        print("X and Y coordinates: ", x, " ", y)
 
 
     print(grid)
