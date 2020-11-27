@@ -35,7 +35,7 @@ y1 = 50  # initial value for y
 x1_change = 0
 y1_change = 0
 snake_block = 10    #Size of the snake
-snake_speed = 10    #Amount of frames per second (original is 15)
+snake_speed = 1    #Amount of frames per second (original is 15)
 
 font_style = pygame.font.SysFont(None, 50)
 
@@ -788,9 +788,12 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody):
         grid[int(i)][0] = -1
         grid[int(i)][int(columns)-1] = -1
 
-    snake_headx = snake_list_np[0]
+    row = snake_list_np.shape
+    snake_len = (row[0] / 2)
+
+    snake_headx = snake_list_np[int(snake_len)]
     snake_headx = int(snake_headx)/10
-    snake_heady = snake_list_np[1]
+    snake_heady = snake_list_np[int(snake_len)]
     snake_heady = int(snake_heady) / 10
 
     #print("HEAD X : ", snake_headx, " HEAD Y : ", snake_heady)
@@ -798,11 +801,21 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody):
     if(snake_heady == rows or snake_headx == columns) :
         return "null"
 
-    grid[int(snake_heady)+1][int(snake_headx)+1] = 99
+    grid[int(snake_heady)+1][int(snake_headx)+1] = 9
 
     foodx = foodx / 10
     foody = foody / 10
     grid[int(foody) + 1][int(foodx)+1] = 100
+
+
+    if int(snake_len) > 1 :
+        for a in range(int(snake_len)-1) :
+            x = int(snake_list_np[a * 2])/10
+            y = int(snake_list_np[a * 2 + 1])/10
+            grid[int(y)+1][int(x)+1] = 8
+            print("X and Y coordinates: ", x, " ", y)
+
+
     print(grid)
 
     if(snake_headx < foodx) :
