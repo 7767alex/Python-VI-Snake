@@ -792,47 +792,63 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
     snake_len = (row[0] / 2)
 
     snake_headx = x1/10
-    #snake_headx = int(snake_headx)/10
     snake_heady = y1/10
-    #snake_heady = int(snake_heady) / 10
 
-    #print("HEAD X : ", snake_headx, " HEAD Y : ", snake_heady)
-
-    if(snake_heady == rows or snake_headx == columns) :
+    if(snake_heady+1 >= rows or snake_headx+1 >= columns) :
         return "null"
-
-    grid[int(snake_heady)+1][int(snake_headx)+1] = 9
 
     foodx = foodx / 10
     foody = foody / 10
-    grid[int(foody) + 1][int(foodx)+1] = 100
+    grid[int(foody) + 1][int(foodx)+1] = 1
 
-
-
-    for a in range(int(snake_len)-1) :
+    for a in range(int(snake_len)-2) :
         x = int(snake_list_np[a * 2])/10
         y = int(snake_list_np[a * 2 + 1])/10
-        grid[int(y)+1][int(x)+1] = 8
-        print("X and Y coordinates: ", x, " ", y)
+        grid[int(y)+1][int(x)+1] = -1
+
+    for a in range(4):
+        grid_copy = np.empty_like(grid)
+        grid_copy[:] = grid
+        for i in range(1,int(rows)-1) :
+            for j in range(1,int(columns)-1) :
+                val = grid[i-1][j]+grid[i+1][j]+grid[i][j-1]+grid[i][j+1]+grid[i][j]
+                grid_copy[i][j] = val
+        grid = grid_copy
 
 
-    print(grid)
+    grid_copy[int(snake_heady)+1][int(snake_headx)+1] = 0
 
-    if(snake_headx < foodx) :
-        return "right"
-    elif(snake_headx > foodx) :
-        return "left"
-    elif(snake_heady > foody) :
-        return "up"
-    elif(snake_heady < foody) :
-        return "down"
+        #print("X and Y coordinates: ", x, " ", y)
+
+    print(grid_copy)
+
+    next_move_y = "null"
+    next_move_x = "null"
+    y_value = 0
+    x_value = 0
+    if((grid[int(snake_heady)+2][int(snake_headx)+1]) > (grid[int(snake_heady)][int(snake_headx)+1])) :
+        next_move_y = "up"
+        y_value = grid[int(snake_heady)+2][int(snake_headx)+1]
+    else :
+        next_move_y = "down"
+        y_value = grid[int(snake_heady)][int(snake_headx)+1]
+
+    if((grid[int(snake_heady)+1][int(snake_headx)+2]) > (grid[int(snake_heady)+1][int(snake_headx)])) :
+        next_move_x = "right"
+        x_value = grid[int(snake_heady)+1][int(snake_headx)+2]
+    else :
+        next_move_x = "left"
+        x_value = grid[int(snake_heady)+1][int(snake_headx)]
+
+    if(x_value > y_value) :
+        return next_move_x
+    else :
+        return next_move_y
     else :
         return "null"
-
-
-
 
 game_loop()
 #print("HIT3")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
