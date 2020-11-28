@@ -845,7 +845,7 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
     else :
         return next_move_y
     else :
-        return "null"
+        return "null" ### error: Statement expected, found Py:ELSE_KEYWORD
 
 game_loop()
 #print("HIT3")
