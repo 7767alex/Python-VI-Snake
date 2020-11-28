@@ -263,7 +263,7 @@ def game_loop_Train(emulate):
 
         # if(next_move == "null") :
 
-        diff = [snake_Head[0] - food_x_y[0], snake_Head[1] - food_x_y[1]]
+        diff = [snake_Head[0] - food_x_y[0], snake_Head[1] - food_x_y[1]] 
         diff = abs(diff[0] + diff[1])
         ##############Emulation of moves#############################################################
         params = {
