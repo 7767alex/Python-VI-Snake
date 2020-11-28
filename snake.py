@@ -286,21 +286,25 @@ def game_loop_Train(emulate):
             moveCounter += 1
             moves.append(moveCounter)
             moveSinceScore += 1
+            
         if choosenDirection == 'D':
             change_to = 'DOWN'
             moveCounter += 1
             moves.append(moveCounter)
             moveSinceScore += 1
+           
         if choosenDirection == 'L':
             change_to = 'LEFT'
             moveCounter += 1
             moves.append(moveCounter)
             moveSinceScore += 1
+             
         if choosenDirection == 'R':
             change_to = 'RIGHT'
             moveCounter += 1
             moves.append(moveCounter)
             moveSinceScore += 1
+            
 
 
         # Making sure the snake cannot move in the opposite direction instantaneously
@@ -319,9 +323,9 @@ def game_loop_Train(emulate):
         if direction == 'DOWN':
             snake_Head[1] -= 10
         if direction == 'LEFT':
-            snake_list_np[0] -= 10
+            snake_Head[0] -= 10
         if direction == 'RIGHT':
-            snake_list_np[0] += 10
+            snake_Head[0] += 10
 
     ###########################################################################################################################
 
