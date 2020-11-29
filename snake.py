@@ -220,13 +220,12 @@ def game_loop_Train():
     game_over = False
     game_close = False
      # will contains the head indexes
-    x1 = dis_width / 2  # inital value for x
-    y1 = dis_height / 2
+    x1 = dis_width / 2  # initial value for x
+    y1 = dis_height / 2 # initial value for y
     snake_Head = [x1, y1]
     moveCounter = 0
     moves = []
     moveSinceScore = 0
-    # initial value for y
     snake_list_np = np.array([])
     snake_list_np = np.append(snake_list_np, snake_Head)
     snake_length = 1
@@ -279,11 +278,10 @@ def game_loop_Train():
             }
         change_to = ''
         alpha = 0.1
-
-        gamma = 0.9
-        e = 0.9
-        alphaD = 0.999
-        ed = 1.3
+        gamma = 0.2
+        e = 0.4
+        alphaD = 0.2
+        ed = 0.6
         emin = 0.0001
 
         try:
@@ -322,13 +320,13 @@ def game_loop_Train():
 
 
         # Making sure the snake cannot move in the opposite direction instantaneously
-        if change_to == 'UP' and direction != 'DOWN':
+        if change_to == 'UP' and direction != 'DOWN' and direction != 'LEFT' and direction != 'RIGHT':
             direction = 'UP'
-        if change_to == 'DOWN' and direction != 'UP':
+        if change_to == 'DOWN' and direction != 'UP' and direction != 'LEFT' and direction != 'RIGHT':
             direction = 'DOWN'
-        if change_to == 'LEFT' and direction != 'RIGHT':
+        if change_to == 'LEFT' and direction != 'RIGHT' and direction != 'UP' and direction != 'DOWN':
             direction = 'LEFT'
-        if change_to == 'RIGHT' and direction != 'LEFT':
+        if change_to == 'RIGHT' and direction != 'LEFT' and direction != 'UP' and direction != 'DOWN':
             direction = 'RIGHT'
 
         # Moving the snake
@@ -343,7 +341,7 @@ def game_loop_Train():
 
     ###########################################################################################################################
 
-        if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:  # the case that the snake hits a border
+        if x1 >= dis_width and x1 < 0 and y1 >= dis_height and y1 < 0:  # the case that the snake hits a border
             game_close = True
 
         row = snake_list_np.shape
@@ -556,7 +554,18 @@ def QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin):
 
   gameCounter += 1
 
+  if (gameState == "NORM"):
+      reward = ((0 - params["moveSinceScore"]) /50)
+      reward = (reward + gamma * max(futReward))
 
+  if (gameState == "SCORE"):
+      reward = (rewardScore + gamma * max(futReward))
+  if (gameState == "GAMEOVER"):
+      reward = rewardKill
+
+
+  sample = alpha * reward
+  currReward[i] = (1-alpha) * currReward[i] + sample
 
 def ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody):
     rows = 2 + (dis_height / 10)
