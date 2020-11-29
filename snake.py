@@ -216,7 +216,7 @@ def game_loop():
     pygame.quit()
     quit()  # Uninitialize everything at the end
 
-def game_loop_Train(emulate):
+def game_loop_Train():
     game_over = False
     game_close = False
      # will contains the head indexes
@@ -230,12 +230,13 @@ def game_loop_Train(emulate):
     snake_list_np = np.array([])
     snake_list_np = np.append(snake_list_np, snake_Head)
     snake_length = 1
-
+    direction = 'RIGHT'
     # print("HIT1")
     ##[120, 100]
-
-    food_x_y = [round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0,
-                round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0]
+    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+    food_x_y = [foodx,
+                foody]
     ##foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     ##foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
 
@@ -248,7 +249,7 @@ def game_loop_Train(emulate):
 
         while game_close == True:
             dis.fill(white)
-            game_loop_Train(emulate)
+            game_loop_Train()
             pygame.display.update()
 
 
@@ -276,8 +277,26 @@ def game_loop_Train(emulate):
             'screenSizeY': dis_height,
             'moveSinceScore': moveSinceScore
             }
+        change_to = ''
+        alpha = 0.1
+        alphaD = 0.999
+        gamma = 0.9
+        e = 0.9
+        ed = 1.3
+        emin = 0.0001
 
-        choosenDirection = states(params) ## QLearning decider
+        try:
+            with open("Q_val" + ".pickle", "rb") as Q_val:
+                Q = defaultdict(lambda: [0, 0, 0, 0], pickle.load(Q_val))
+        except:
+            Q = defaultdict(lambda: [0, 0, 0, 0])
+            # UP LEFT DOWN RIGHT
+            print("NEW Q")
+
+        lastMoves = ""
+
+        choosenDirection = QLearning(params, Q, alpha, gamma, e) ## QLearning decider
+
 
         if choosenDirection == 'U':
             change_to = 'UP'
@@ -366,10 +385,6 @@ def game_loop_Train(emulate):
             snake_length = snake_length + 1  # Extend snake and replace old food pellet
             # print("Yummy")
 
-        next_move = ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody)
-        print("NEXT MOVE : ", next_move)
-
-        clock.tick(snake_speed)  # 30 frames for every second
 
     pygame.quit()
     quit()  # Uninitialize everything at the end
@@ -381,21 +396,14 @@ gameCounter = 0
 gameScores = []
 
 
-try:
-    with open("Q_val" + ".pickle", "rb") as Q_val:
-        Q = defaultdict(lambda: [0,0,0,0], pickle.load(Q_val))
-except:
-    Q = defaultdict(lambda: [0,0,0,0])
-    #UP LEFT DOWN RIGHT
-    print("NEW Q")
 
 lastMoves = ""
 
 def states(params):
     global oldMoves
-    relaFoodPosition = np.zeros(6)
-    screenBorder = np.zeros(6)
-    bodyProx = np.zeros(4)
+    relaFoodPosition = [0,0,0,0,0,0]#np.zeros(6)
+    screenBorder = [0,0,0,0,0,0]#np.zeros(6)
+    bodyProx = [0,0,0,0]#np.zeros(4)
     snakeBody = []
 
     RelaState = ""
@@ -449,10 +457,11 @@ def states(params):
 
     for i in bodyProx:
         BodyState += str(i)
+    print(params["snake_pos"])
 
-    direction = ""
-    direct = [params["snake_pos"][10, 0] - params["snake_pos"][0, 0],
-              params["snake_pos"][10, 10] - params["snake_pos"][0, 10]]
+
+    direct = [params["snake_pos"][0],
+              params["snake_pos"][1]]
                 ##(x,y)
 
     if (direct[0] == 10 and direct[1] == 0):
@@ -464,12 +473,12 @@ def states(params):
     if (direct[0] == 0 and direct[1] == -10):
         direction = "DO"
 
-    state = np.array()
-    state.append(RelaState)
-    state.append(ScreenState)
-    state.append(BodyState)
 
-gameCounter = []
+    state = RelaState + "_" + ScreenState + "_" + BodyState + "_"
+    print(state)
+    return state
+
+gameCounter = np.array([])
 gameCounter = 0
 start = 0
 end = 0
@@ -481,7 +490,7 @@ def QLearning(params, Q, alpha, gamma, e):
   choice = np.random.choice(['U', 'D', 'R', 'L'], p=[0.25, 0.25, 0.25, 0.25])
   FirstMove = np.random.choice([True, False], p=[1-e,e])
 
-  state = QLearning(params, Q, alpha, gamma, e)
+  state = states(params)
   futReward = Q[state]
   currReward = Q[currState]
 
@@ -540,7 +549,7 @@ def QLearning(params, Q, alpha, gamma, e):
 
   gameCounter += 1
 
-game_loop_Train(QLearning)
+game_loop_Train()
 
 def ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody):
     rows = 2 + (dis_height / 10)
@@ -595,5 +604,3 @@ def ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody):
         return "down"
     else:
         return "null"
-
-
