@@ -279,9 +279,10 @@ def game_loop_Train():
             }
         change_to = ''
         alpha = 0.1
-        alphaD = 0.999
+
         gamma = 0.9
         e = 0.9
+        alphaD = 0.999
         ed = 1.3
         emin = 0.0001
 
@@ -295,7 +296,7 @@ def game_loop_Train():
 
         lastMoves = ""
 
-        choosenDirection = QLearning(params, Q, alpha, gamma, e) ## QLearning decider
+        choosenDirection = QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin) ## QLearning decider
 
 
         if choosenDirection == 'U':
@@ -427,14 +428,23 @@ def states(params):
     for i in relaFoodPosition:
         RelaState += str(i)
 
-    if (params["screenSizeX"] - params["snake_pos"][0] == 10):
+    if (params["screenSizeX"] - params["snake_pos"][0] == 0):
         screenBorder[0] = 1
-    if (params["screenSizeX"] - params["snake_pos"][0] == params["screenSizeX"]):
+    if (params["screenSizeX"] - params["snake_pos"][0] == params["screenSizeX"]) -10:
         screenBorder[1] = 1
     if (params["screenSizeY"] - params["snake_pos"][1] == -10):
         screenBorder[2] = 1
-    if (params["screenSizeY"] - params["snake_pos"][1] == params["screenSizeY"]):
+    if (params["screenSizeY"] - params["snake_pos"][1] < params["screenSizeY"]) - 10:
         screenBorder[3] = 1
+    borderx = str(params["screenSizeX"] - params["snake_pos"][0])
+    borderx2 = str(params["screenSizeX"] - params["snake_pos"][0])
+    bordery = str(params["screenSizeY"] - params["snake_pos"][1])
+    bordery2 = str(params["screenSizeY"] - params["snake_pos"][1])
+
+    print("borderx:" +borderx )
+    print("borderx:" +borderx2)
+    print("bordery:" +bordery)
+    print("bordery:" +bordery2)
 
     for i in screenBorder:
         ScreenState += str(i)
@@ -478,12 +488,9 @@ def states(params):
     print(state)
     return state
 
-gameCounter = np.array([])
-gameCounter = 0
-start = 0
-end = 0
 
-def QLearning(params, Q, alpha, gamma, e):
+
+def QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin):
 
   global currState, currAction, gameCounter, start, end
 
@@ -549,7 +556,7 @@ def QLearning(params, Q, alpha, gamma, e):
 
   gameCounter += 1
 
-game_loop_Train()
+
 
 def ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody):
     rows = 2 + (dis_height / 10)
