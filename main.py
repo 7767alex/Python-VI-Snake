@@ -1,4 +1,5 @@
 
+
 import pygame
 import time
 import random
@@ -56,7 +57,7 @@ def main_menu():
                     pygame.quit()
                     quit()
                 if event.key == pygame.K_t:  # User presses 1
-                    import Q_learn_action_state
+                    sn.game_loop_Train()
                     menu = False
                 if event.key == pygame.K_2:  # User presses 2
                     ##game_loop2()
