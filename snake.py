@@ -200,7 +200,7 @@ def game_loop():
                          [x1, y1, snake_block, snake_block])  # position of rectangle 200,150 and then size 10,10
 
         pygame.display.update()  # Update what is in window
-
+        ##snake Growth
         if x1 == foodx and y1 == foody:  # Case of head running into food
             # check_food(obstacle_array,foodx,foody)
             foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
@@ -219,13 +219,17 @@ def game_loop():
 def game_loop_Train(emulate):
     game_over = False
     game_close = False
-    snake_Head = []  # will contains the head indexes
-
+     # will contains the head indexes
     x1 = dis_width / 2  # inital value for x
-    y1 = dis_height / 2  # initial value for y
-
-    x1_change = 0  # x and y values to be added to x and y
-    y1_change = 0
+    y1 = dis_height / 2
+    snake_Head = [x1, y1]
+    moveCounter = 0
+    moves = []
+    moveSinceScore = 0
+    # initial value for y
+    snake_list_np = np.array([])
+    snake_list_np = np.append(snake_list_np, snake_Head)
+    snake_length = 1
 
     # print("HIT1")
     ##[120, 100]
@@ -235,10 +239,10 @@ def game_loop_Train(emulate):
     ##foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     ##foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
 
-    snake_list = []  # Contains the extended snake including head
-    snake_length = 1  # Inital length of snake
 
-    snake_list_np = np.array([])
+    snake_list = []  # Contains the extended snake including head
+
+
 
     while (not game_over):  # The game and display updates happen here
 
@@ -266,16 +270,14 @@ def game_loop_Train(emulate):
             'food_pos': food_x_y,
             'snake_pos': snake_Head,
             'snake_body': snake_list_np,
-            'score': snake_len,
+            'score': snake_length,
             'diff':diff,
             'screenSizeX': dis_width,
             'screenSizeY': dis_height,
             'moveSinceScore': moveSinceScore
             }
-        moveCounter = 0
-        moves = []
-        moveSinceScore = 0
-        choosenDirection = Q.states(params) ## QLearning decider
+
+        choosenDirection = states(params) ## QLearning decider
 
         if choosenDirection == 'U':
             change_to = 'UP'
@@ -324,19 +326,10 @@ def game_loop_Train(emulate):
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:  # the case that the snake hits a border
             game_close = True
 
-        x1 = x1 + x1_change  # Updated y and x positions of snake
-        y1 = y1 + y1_change
-
-        dis.fill(white)  # Fil display with white
-
-        snake_Head = []  # will contains the head indexes
-        snake_Head.append(x1)
-        snake_Head.append(y1)
-
-
-        snake_list_np = np.append(snake_list_np, snake_Head)
         row = snake_list_np.shape
         snake_len = (row[0] / 2)
+        dis.fill(white)  # Fil display with white
+
 
         # if len(snake_list) > snake_length: #Deleting the snake that is no longer there
         if int(snake_len) > snake_length:
@@ -400,10 +393,10 @@ lastMoves = ""
 
 def states(params):
     global oldMoves
-    relaFoodPosition = "NOTHING"
+    relaFoodPosition = np.zeros(6)
     screenBorder = np.zeros(6)
     bodyProx = np.zeros(4)
-    snakeBody = np.array()
+    snakeBody = []
 
     RelaState = ""
     ScreenState = ""
@@ -411,29 +404,29 @@ def states(params):
 
 
     if ((params["food_pos"][0] - params["snake_pos"][0]) > 0):
-        relaFoodPosition[0] = "RI"
+        relaFoodPosition[0] = 1
     if((params["food_pos"][0] - params["snake_pos"][0])< 0):
-        relaFoodPosition[1] = "LE"
+        relaFoodPosition[1] = 1
     if ((params["food_pos"][0] - params["snake_pos"][0]) == 0):
-        relaFoodPosition[2] = "MX"
+        relaFoodPosition[2] = 1
     if (params["food_pos"][1] - params["snake_pos"][1]) > 0:
-        relaFoodPosition[3] = "DO"
+        relaFoodPosition[3] = 1
     if (params["food_pos"][1] - params["snake_pos"][1]) < 0:
-        relaFoodPosition[4] = "UP"
+        relaFoodPosition[4] = 1
     if ((params["food_pos"][1] - params["snake_pos"][1]) == 0):
-        relaFoodPosition[5] = "MY"
+        relaFoodPosition[5] = 1
 
     for i in relaFoodPosition:
         RelaState += str(i)
 
     if (params["screenSizeX"] - params["snake_pos"][0] == 10):
-        screenBorder[0] = "RI"
+        screenBorder[0] = 1
     if (params["screenSizeX"] - params["snake_pos"][0] == params["screenSizeX"]):
-        screenBorder[1] ="LE"
+        screenBorder[1] = 1
     if (params["screenSizeY"] - params["snake_pos"][1] == -10):
-        screenBorder[2] = "DO"
+        screenBorder[2] = 1
     if (params["screenSizeY"] - params["snake_pos"][1] == params["screenSizeY"]):
-        screenBorder[3] = "UP"
+        screenBorder[3] = 1
 
     for i in screenBorder:
         ScreenState += str(i)
@@ -446,20 +439,20 @@ def states(params):
 
     for bodyProx_ in snakeBody:
         if (params["snake_pos"][0] - bodyProx_[0] == 0 and params["snake_pos"][1] - bodyProx_[1] == 10):
-            bodyProx[0] = "UP"
+            bodyProx[0] = 1
         if (params["snake_pos"][0] - bodyProx_[0] == 0 and params["snake_pos"][1] - bodyProx_[1] == -10):
-            bodyProx[1] = "DO"
+            bodyProx[1] = 1
         if (params["snake_pos"][0] - bodyProx_[0] == 10 and params["snake_pos"][1] - bodyProx_[1] == 0):
-            bodyProx[2] = "LE"
+            bodyProx[2] = 1
         if (params["snake_pos"][0] - bodyProx_[0] == -10 and params["snake_pos"][1] - bodyProx_[1] == 0):
-            bodyProx[3] = "RI"
+            bodyProx[3] = 1
 
     for i in bodyProx:
         BodyState += str(i)
 
     direction = ""
-    direct = [params["snake_body"][1][0] - params["snake_body"][0][0],
-              params["snake_body"][1][1] - params["snake_body"][0][1]]
+    direct = [params["snake_pos"][10, 0] - params["snake_pos"][0, 0],
+              params["snake_pos"][10, 10] - params["snake_pos"][0, 10]]
                 ##(x,y)
 
     if (direct[0] == 10 and direct[1] == 0):
