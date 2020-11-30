@@ -9,7 +9,7 @@ import numpy as np
 from collections import defaultdict
 import pickle
 from time import sleep, time
-
+import Q_learn as Q
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -276,6 +276,7 @@ def game_loop_Train():
             'screenSizeY': dis_height,
             'moveSinceScore': moveSinceScore
             }
+        Q.env(params)
         change_to = ''
         alpha = 0.1
         gamma = 0.2
@@ -485,8 +486,6 @@ def states(params):
     state = RelaState + "_" + ScreenState + "_" + BodyState + "_"
     print(state)
     return state
-
-
 
 def QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin):
 
