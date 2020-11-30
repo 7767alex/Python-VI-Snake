@@ -4,21 +4,23 @@ import numpy as np
 
 def env(params):
 
-
     global action, rewards, moveableArea, q_values
 
     action = ["UP", "DOWN", "LEFT", 'RIGHT']
-    q_values = np.zeros((params['screenSizeX'], params['screenSizeY'], action))
+    q_values = np.zeros((params['screenSizeX'], params['screenSizeY'], 3))
     rewards = np.full([params['screenSizeX'], params['screenSizeY']], -100)
-    rewards[params['food_posx'], params['food_posy']] = 100
+    rewards[int(params['food_posx']), int(params['food_posy'])] = 5
+    # print(rewards)
     moveableArea = {}
 
     for i in range(1, params['screenSizeY']):
-        moveableArea = [i for i in range(1, params['screenSizeX'])]  # come back to this
+        moveableArea[i] = [i for i in range(1, params['screenSizeX']]  # come back to this
+    # print(moveableArea)
 
-    for row_index in range(1, params['screenSizeX']):
+    for row_index in range(1, params['screenSizeX']-1):
         for column_index in moveableArea[row_index]:
             rewards[row_index, column_index] = -1
+    print(rewards)
     return q_values
 
 
@@ -28,14 +30,12 @@ def is_terminal_state(current_row_index, current_column_index):
     else:
         return True
 
-
 def get_starting_location(params, e):
     current_row_index = params['snake_pos'][0]
     current_column_index = params['snake_pos'][1]
     while is_terminal_state(current_row_index, current_column_index):
         Move = np.random.choice([True, False], p=[1 - e, e])
     return Move
-
 
 def get_next_action(params, current_row_index, current_column_index, e):
     moveBool = get_starting_location(params, e)
@@ -58,7 +58,6 @@ def get_next_location(params, current_row_index, current_column_index, action_in
         new_col_i -= 1
     return new_row_i, new_col_i
 
-
 def get_shortest_path(params, start_row_index, start_column_index):
     global action_index
     if is_terminal_state(start_row_index, start_column_index):
@@ -74,7 +73,6 @@ def get_shortest_path(params, start_row_index, start_column_index):
                                                                         action_index)
             shortest_path.append([current_row_index, current_column_index])
         return shortest_path
-
 
 def Q_train(q_values, epsilon, gamma, learning_rate):
     for episode in range(1000):
@@ -93,4 +91,3 @@ def Q_train(q_values, epsilon, gamma, learning_rate):
 
         new_q_value = old_q_value + (learning_rate * temporal_difference)
         q_values[old_row_index, old_column_index, action_index] = new_q_value
-

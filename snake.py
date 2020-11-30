@@ -20,8 +20,8 @@ def print_hi(name):
 pygame.init()  # Initialize everything at the start
 
 # Original values for both is 600 by 400
-dis_width = 100  # Width and height of the screen
-dis_height = 100
+dis_width = 30  # Width and height of the screen
+dis_height = 30
 
 dis = pygame.display.set_mode((dis_width, dis_height))  # Set setting for the display
 pygame.display.set_caption('Snake Game RL')  # Caption for window
