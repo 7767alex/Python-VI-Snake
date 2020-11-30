@@ -3,13 +3,11 @@
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 import pygame
-import time
 import random
 import numpy as np
-from collections import defaultdict
-import pickle
-from time import sleep, time
 import Q_learn as Q
+
+
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -20,8 +18,8 @@ def print_hi(name):
 pygame.init()  # Initialize everything at the start
 
 # Original values for both is 600 by 400
-dis_width = 30  # Width and height of the screen
-dis_height = 30
+dis_width = 20  # Width and height of the screen
+dis_height = 20
 
 dis = pygame.display.set_mode((dis_width, dis_height))  # Set setting for the display
 pygame.display.set_caption('Snake Game RL')  # Caption for window
@@ -234,11 +232,6 @@ def game_loop_Train():
     ##[120, 100]
     foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-    food_x_y = [foodx,
-                foody]
-    ##foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-    ##foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-
 
     snake_list = []  # Contains the extended snake including head
 
@@ -263,15 +256,16 @@ def game_loop_Train():
 
         # if(next_move == "null") :
 
-        diff = [snake_Head[0] - food_x_y[0], snake_Head[1] - food_x_y[1]]
-        diff = abs(diff[0] + diff[1])
+        #diff = [snake_Head[0] - food_x_y[0], snake_Head[1] - food_x_y[1]]
+        #diff = abs(diff[0] + diff[1])
         ##############Emulation of moves#############################################################
         params = {
-            'food_pos': food_x_y,
+            'food_posx': foodx,
+            'food_posy': foody,
             'snake_pos': snake_Head,
             'snake_body': snake_list_np,
             'score': snake_length,
-            'diff':diff,
+            #'diff':diff,
             'screenSizeX': dis_width,
             'screenSizeY': dis_height,
             'moveSinceScore': moveSinceScore
@@ -284,16 +278,8 @@ def game_loop_Train():
         alphaD = 0.2
         ed = 0.6
         emin = 0.0001
+        act_bin= 4
 
-        try:
-            with open("Q_val" + ".pickle", "rb") as Q_val:
-                Q = defaultdict(lambda: [0, 0, 0, 0], pickle.load(Q_val))
-        except:
-            Q = defaultdict(lambda: [0, 0, 0, 0])
-            # UP LEFT DOWN RIGHT
-            print("NEW Q")
-
-        lastMoves = ""
 
         choosenDirection = QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin) ## QLearning decider
 
@@ -399,18 +385,35 @@ gameScores = []
 
 lastMoves = ""
 
+
+
+
 def states(params):
+
+    action = ["UP", "DOWN", "LEFT", 'RIGHT']
+    rewards = np.full([params['screenSizeX'], params['screenSizeY']], -100)
+    rewards[params['food_posx'], params['food_posy']]
+    moveableArea = {}
+
+    for i in range(1, params['screenSizeY']):
+        moveableArea = [i for i in range(1, params['screenSizeX'])] # come back to this
+
+    for row_index in range(1, params['screenSizeX']):
+        for column_index in moveableArea[row_index]:
+            rewards[row_index, column_index] = -1
+
+
+
+
+'''
     global oldMoves
     relaFoodPosition = [0,0,0,0,0,0]#np.zeros(6)
     screenBorder = [0,0,0,0,0,0]#np.zeros(6)
     bodyProx = [0,0,0,0]#np.zeros(4)
     snakeBody = []
-
     RelaState = ""
     ScreenState = ""
     BodyState = ""
-
-
     if ((params["food_pos"][0] - params["snake_pos"][0]) > 0):
         relaFoodPosition[0] = 1
     if((params["food_pos"][0] - params["snake_pos"][0])< 0):
@@ -423,10 +426,8 @@ def states(params):
         relaFoodPosition[4] = 1
     if ((params["food_pos"][1] - params["snake_pos"][1]) == 0):
         relaFoodPosition[5] = 1
-
     for i in relaFoodPosition:
         RelaState += str(i)
-
     if (params["screenSizeX"] - params["snake_pos"][0] == 0):
         screenBorder[0] = 1
     if (params["screenSizeX"] - params["snake_pos"][0] == params["screenSizeX"]) -10:
@@ -439,21 +440,17 @@ def states(params):
     borderx2 = str(params["screenSizeX"] - params["snake_pos"][0])
     bordery = str(params["screenSizeY"] - params["snake_pos"][1])
     bordery2 = str(params["screenSizeY"] - params["snake_pos"][1])
-
     print("borderx:" +borderx )
     print("borderx:" +borderx2)
     print("bordery:" +bordery)
     print("bordery:" +bordery2)
-
     for i in screenBorder:
         ScreenState += str(i)
-
     next = 0
     for i in params["snake_body"]:
         if(next > 3):
             snakeBody.append(i)
         next+=1
-
     for bodyProx_ in snakeBody:
         if (params["snake_pos"][0] - bodyProx_[0] == 0 and params["snake_pos"][1] - bodyProx_[1] == 10):
             bodyProx[0] = 1
@@ -463,16 +460,12 @@ def states(params):
             bodyProx[2] = 1
         if (params["snake_pos"][0] - bodyProx_[0] == -10 and params["snake_pos"][1] - bodyProx_[1] == 0):
             bodyProx[3] = 1
-
     for i in bodyProx:
         BodyState += str(i)
     print(params["snake_pos"])
-
-
     direct = [params["snake_pos"][0],
               params["snake_pos"][1]]
                 ##(x,y)
-
     if (direct[0] == 10 and direct[1] == 0):
         direction = "RI"
     if (direct[0] == -10 and direct[1] == 0):
@@ -481,25 +474,25 @@ def states(params):
         direction = "UP"
     if (direct[0] == 0 and direct[1] == -10):
         direction = "DO"
-
-
     state = RelaState + "_" + ScreenState + "_" + BodyState + "_"
     print(state)
     return state
+'''
 
 def QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin):
+    action = ["UP", "DOWN", "LEFT", 'RIGHT']
 
-  global currState, currAction, gameCounter, start, end
 
+
+
+
+
+'''global currState, currAction, gameCounter, start, end
   choice = np.random.choice(['U', 'D', 'R', 'L'], p=[0.25, 0.25, 0.25, 0.25])
-  FirstMove = np.random.choice([True, False], p=[1-e,e])
-
   state = states(params)
   futReward = Q[state]
   currReward = Q[currState]
-
   i = 0
-
   if (currAction == 'U'):
       i = 0
   if (currAction == 'D'):
@@ -509,13 +502,10 @@ def QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin):
   if(currAction == 'L'):
       i = 3
   ###Aproximate Q-Learning####
-
   reward = ((0 - params["moveSinceScore"]) /50)
   sample = alpha * (reward + gamma * max(futReward))
   currReward[i] = (1-alpha) * currReward[i] + sample
-
   Q[currState] = currReward
-
   if FirstMove == False:
       currAction = choice
       return currAction
@@ -532,39 +522,30 @@ def QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin):
       if futReward[3] > (futReward[0] and futReward[1] and futReward[2] and futReward[4]):
           currAction = 'L'
           return currAction
-
       else:
           currAction = choice
           return currAction
-
   if (gameCounter % 200 == 0):
       with open("Q_val" + ".pickle", "wb") as Q_val:
           pickle.dump(dict(Q), Q_val)
-
   if (gameCounter % 100 == 1):
       end = time()
       timeD = end-start
       start = time()
-
   if gameCounter % 100 == 0:
       alpha = alpha * alphaD
       if e > emin:
           e = e / ed
-
   gameCounter += 1
-
   if (gameState == "NORM"):
       reward = ((0 - params["moveSinceScore"]) /50)
       reward = (reward + gamma * max(futReward))
-
   if (gameState == "SCORE"):
       reward = (rewardScore + gamma * max(futReward))
   if (gameState == "GAMEOVER"):
       reward = rewardKill
-
-
   sample = alpha * reward
-  currReward[i] = (1-alpha) * currReward[i] + sample
+  currReward[i] = (1-alpha) * currReward[i] + sample '''
 
 def ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody):
     rows = 2 + (dis_height / 10)

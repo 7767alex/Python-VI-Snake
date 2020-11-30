@@ -1,12 +1,10 @@
 import numpy as np
 
-
-
 def env(params):
 
     global action, rewards, moveableArea, q_values
 
-    action = ["UP", "DOWN", "LEFT", 'RIGHT']
+    action = ["UP", "DOWN", "LEFT", "RIGHT"]
     q_values = np.zeros((params['screenSizeX'], params['screenSizeY'], 3))
     rewards = np.full([params['screenSizeX'], params['screenSizeY']], -100)
     rewards[int(params['food_posx']), int(params['food_posy'])] = 5
@@ -14,18 +12,16 @@ def env(params):
     moveableArea = {}
 
     for i in range(1, params['screenSizeY']):
-        moveableArea[i] = [i for i in range(1, params['screenSizeX']]  # come back to this
-    # print(moveableArea)
+        moveableArea[i] = [i for i in range(1, params['screenSizeX']-1)]  # come back to this
 
     for row_index in range(1, params['screenSizeX']-1):
         for column_index in moveableArea[row_index]:
-            rewards[row_index, column_index] = -1
+            rewards[row_index, column_index] = 1
     print(rewards)
     return q_values
 
-
 def is_terminal_state(current_row_index, current_column_index):
-    if rewards[current_row_index, current_column_index] == -1:
+    if rewards[current_row_index, current_column_index] == 1:
         return False
     else:
         return True
