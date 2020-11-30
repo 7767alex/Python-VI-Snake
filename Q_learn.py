@@ -76,7 +76,13 @@ def Q_train(q_values, epsilon, gamma, learning_rate):
         q_values = [row_index, column_index, action]
 
     while not is_terminal_state(row_index, column_index):
-        action_index = get_next_action(row_index, column_index, epsilon)
+        action_check = get_next_action(row_index, column_index, epsilon)
+        
+        if(action_check == True):
+            action_index = np.random.randint(4)
+        else:
+            action_index = action_check
+
 
         old_row_index, old_column_index = row_index, column_index
         row_index, column_index = get_next_location(row_index, column_index, action_index)
