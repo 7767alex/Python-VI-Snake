@@ -666,6 +666,8 @@ def game_loop():
 
     snake_list_np = np.array([])
 
+    prev_direction = "left"
+
     while (not game_over): #The game and display updates happen here
 
         while game_close == True:
@@ -763,15 +765,16 @@ def game_loop():
             snake_length = snake_length+1 #Extend snake and replace old food pellet
             #print("Yummy")
 
-        next_move = ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1)
+        next_move = ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1,prev_direction)
         print("NEXT MOVE : ", next_move)
+        prev_direction = next_move
 
         clock.tick(snake_speed)  # 30 frames for every second
 
     pygame.quit()
     quit()  # Uninitialize everything at the end
 
-def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
+def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1,prev_direction):
     rows = 2+(dis_height/10)
     columns = 2+(dis_width/10)
     num_cells = rows*columns
@@ -779,20 +782,12 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
     #grid = np.arange(num_cells).reshape(int(rows),int(columns))
     grid = np.zeros([int(rows),int(columns)], dtype = int)
 
-    for i in range(int(columns)) :
-        grid[0][int(i)-1] = -1
-        grid[int(rows)-1][int(i)-1] = -1
-
-
-    for i in range(int(rows)) :
-        grid[int(i)][0] = -1
-        grid[int(i)][int(columns)-1] = -1
-
     row = snake_list_np.shape
     snake_len = (row[0] / 2)
 
     snake_headx = x1/10
     snake_heady = y1/10
+    print("HEAD X AND Y : ", snake_headx+1 , " " , snake_heady+1)
 
     if(snake_heady+1 >= rows or snake_headx+1 >= columns) :
         return "null"
@@ -800,13 +795,14 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
     foodx = foodx / 10
     foody = foody / 10
     grid[int(foody) + 1][int(foodx)+1] = 1
-
+    """
     for a in range(int(snake_len)-2) :
         x = int(snake_list_np[a * 2])/10
         y = int(snake_list_np[a * 2 + 1])/10
-        grid[int(y)+1][int(x)+1] = -1
+        grid[int(y)+1][int(x)+1] = 0
+    """
 
-    for a in range(4):
+    for a in range(7):
         grid_copy = np.empty_like(grid)
         grid_copy[:] = grid
         for i in range(1,int(rows)-1) :
@@ -815,9 +811,26 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
                 grid_copy[i][j] = val
         grid = grid_copy
 
+    foodx = foodx / 10
+    foody = foody / 10
+    grid[int(foody) + 1][int(foodx)+1] = 100000
+
+    for a in range(int(snake_len)-2) :
+        x = int(snake_list_np[a * 2])/10
+        y = int(snake_list_np[a * 2 + 1])/10
+        grid[int(y)+1][int(x)+1] = -100000
+
+    for i in range(int(columns)) :
+        grid[0][int(i)-1] = -100000
+        grid[int(rows)-1][int(i)-1] = -100000
+
+
+    for i in range(int(rows)) :
+        grid[int(i)][0] = -100000
+        grid[int(i)][int(columns)-1] = -100000
 
     grid_copy[int(snake_heady)+1][int(snake_headx)+1] = 0
-
+    grid = grid_copy
         #print("X and Y coordinates: ", x, " ", y)
 
     print(grid_copy)
@@ -827,25 +840,41 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1):
     y_value = 0
     x_value = 0
     if((grid[int(snake_heady)+2][int(snake_headx)+1]) > (grid[int(snake_heady)][int(snake_headx)+1])) :
-        next_move_y = "up"
-        y_value = grid[int(snake_heady)+2][int(snake_headx)+1]
-    else :
         next_move_y = "down"
+        y_value = grid[int(snake_heady)+2][int(snake_headx)+1]
+        if(prev_direction == "up") :
+            print("HIT")
+            y_value = grid[int(snake_heady)][int(snake_headx) + 1]
+            next_move_y = "down"
+    else :
+        next_move_y = "up"
         y_value = grid[int(snake_heady)][int(snake_headx)+1]
+        if(prev_direction == "down") :
+            print("HIT")
+            y_value = grid[int(snake_heady) + 2][int(snake_headx) + 1]
+            next_move_y = "down"
 
     if((grid[int(snake_heady)+1][int(snake_headx)+2]) > (grid[int(snake_heady)+1][int(snake_headx)])) :
         next_move_x = "right"
         x_value = grid[int(snake_heady)+1][int(snake_headx)+2]
+        if(prev_direction == "left") :
+            print("HIT")
+            x_value = grid[int(snake_heady) + 1][int(snake_headx)]
+            next_move_x = "left"
     else :
         next_move_x = "left"
         x_value = grid[int(snake_heady)+1][int(snake_headx)]
+        if(prev_direction == "right") :
+            print("HIT")
+            x_value = grid[int(snake_heady) + 1][int(snake_headx) + 2]
+            next_move_x = "right"
 
     if(x_value > y_value) :
         return next_move_x
     else :
         return next_move_y
-    else :
-        return "null"
+
+    return "null"
 
 game_loop()
 #print("HIT3")
