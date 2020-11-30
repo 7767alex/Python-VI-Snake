@@ -873,8 +873,13 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1,prev_dir
         return next_move_x
     else :
         return next_move_y
+<<<<<<< HEAD
 
     return "null"
+=======
+    else :
+        return "null" ### error: Statement expected, found Py:ELSE_KEYWORD
+>>>>>>> 587a8f245eeb43621ba5f4888aa75df870cafbac
 
 game_loop()
 #print("HIT3")
