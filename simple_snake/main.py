@@ -35,7 +35,7 @@ y1 = 50  # initial value for y
 x1_change = 0
 y1_change = 0
 snake_block = 10    #Size of the snake
-snake_speed = 1    #Amount of frames per second (original is 15)
+snake_speed = 3    #Amount of frames per second (original is 15)
 
 font_style = pygame.font.SysFont(None, 50)
 
@@ -667,6 +667,7 @@ def game_loop():
     snake_list_np = np.array([])
 
     prev_direction = "left"
+    next_move = "left"
 
     while (not game_over): #The game and display updates happen here
 
@@ -682,6 +683,22 @@ def game_loop():
                         game_close = False
                     if event.key == pygame.K_c: #Case of start again, loop again
                         game_loop()
+
+        newevent = pygame.event.Event(pygame.KEYDOWN, unicode="left arrow", key=pygame.K_LEFT , mod=pygame.KMOD_NONE)  # create the event
+        pygame.event.post(newevent)
+
+        if(next_move == "left") :
+            newevent = pygame.event.Event(pygame.KEYDOWN, unicode="left arrow", key=pygame.K_LEFT,mod=pygame.KMOD_NONE)  # create the event
+            pygame.event.post(newevent)
+        elif(next_move == "right") :
+            newevent = pygame.event.Event(pygame.KEYDOWN, unicode="right arrow", key=pygame.K_RIGHT,mod=pygame.KMOD_NONE)  # create the event
+            pygame.event.post(newevent)
+        elif(next_move == "up") :
+            newevent = pygame.event.Event(pygame.KEYDOWN, unicode="up arrow", key=pygame.K_UP,mod=pygame.KMOD_NONE)  # create the event
+            pygame.event.post(newevent)
+        elif(next_move == "down") :
+            newevent = pygame.event.Event(pygame.KEYDOWN, unicode="down arrow", key=pygame.K_DOWN,mod=pygame.KMOD_NONE)  # create the event
+            pygame.event.post(newevent)
 
         for event in pygame.event.get():  # For input during game
             #print(event)  # For every input print it out
@@ -768,6 +785,8 @@ def game_loop():
         next_move = ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1,prev_direction)
         print("NEXT MOVE : ", next_move)
         prev_direction = next_move
+        newevent = pygame.event.Event(pygame.KEYDOWN, unicode="left arrow", key=pygame.K_a , mod=pygame.KMOD_NONE)  # create the event
+        pygame.event.post(newevent)  # add the event to the queue
 
         clock.tick(snake_speed)  # 30 frames for every second
 
@@ -875,6 +894,7 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1,prev_dir
         return next_move_y
 
     return "null"
+
 game_loop()
 #print("HIT3")
 
