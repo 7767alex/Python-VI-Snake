@@ -18,8 +18,8 @@ def print_hi(name):
 pygame.init()  # Initialize everything at the start
 
 # Original values for both is 600 by 400
-dis_width = 20  # Width and height of the screen
-dis_height = 20
+dis_width = 100  # Width and height of the screen
+dis_height = 100
 
 dis = pygame.display.set_mode((dis_width, dis_height))  # Set setting for the display
 pygame.display.set_caption('Snake Game RL')  # Caption for window
@@ -91,7 +91,7 @@ clock = pygame.time.Clock()
 
 
 
-def game_loop():
+def game_loop_Q():
     game_over = False
     game_close = False
 
@@ -111,20 +111,12 @@ def game_loop():
 
     snake_list_np = np.array([])
 
+    snake_Head = [x1, y1]
+
+    moveSinceScore = 0
+
     while (not game_over):  # The game and display updates happen here
 
-        while game_close == True:
-            dis.fill(white)
-            message("Press Q to quit or C to Play")
-            pygame.display.update()
-
-            for event in pygame.event.get():  # In the case of game over start or quit
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:  # Case of quit game_over = true
-                        game_over = True
-                        game_close = False
-                    if event.key == pygame.K_c:  # Case of start again, loop again
-                        game_loop()
 
         for event in pygame.event.get():  # For input during game
             # print(event)  # For every input print it out
@@ -133,23 +125,53 @@ def game_loop():
 
             ############    AGENT ACTION SHOULD BE DETERMINED BY HERE   ############
             ############    OR BEFORE THE GAME_CLOSE LOOP IS ENTERED   ############
+        params = {
+            'food_posx': foodx,
+            'food_posy': foody,
+            'snake_pos': snake_Head,
+            'snake_body': snake_list_np,
+            'score': snake_length,
 
-            if event.type == pygame.KEYDOWN:  # if key is pressed
+            'screenSizeX': dis_width,
+            'screenSizeY': dis_height,
+            'moveSinceScore': moveSinceScore
+         }
+        Q.env(params)
+        shortestPath = Q.get_shortest_path(params, params['snake_pos'][0], params['snake_pos'][1])
+        choosenDirection = ""
+        change_to = ''
 
-                if event.key == pygame.K_LEFT:  # Case of lef key
-                    x1_change = -snake_block
-                    y1_change = 0
-                if event.key == pygame.K_RIGHT:  # Case of right key
-                    x1_change = snake_block
-                    y1_change = 0
-                if event.key == pygame.K_UP:  # Case of up key
-                    # print("HIT")
-                    y1_change = -snake_block
-                    x1_change = 0
-                if event.key == pygame.K_DOWN:  # Case of down key
-                    # print("HIT")
-                    y1_change = snake_block
-                    x1_change = 0
+        if shortestPath == 0:
+            choosenDirection == 'U'
+        if shortestPath == 1:
+            choosenDirection == 'D'
+        if shortestPath == 2:
+            choosenDirection == 'R'
+        if shortestPath == 3:
+            choosenDirection == 'L'
+
+
+
+            # Making sure the snake cannot move in the opposite direction instantaneously
+        if change_to == 'UP' and direction != 'DOWN' and direction != 'LEFT' and direction != 'RIGHT':
+            direction = 'UP'
+        if change_to == 'DOWN' and direction != 'UP' and direction != 'LEFT' and direction != 'RIGHT':
+            direction = 'DOWN'
+        if change_to == 'LEFT' and direction != 'RIGHT' and direction != 'UP' and direction != 'DOWN':
+            direction = 'LEFT'
+        if change_to == 'RIGHT' and direction != 'LEFT' and direction != 'UP' and direction != 'DOWN':
+            direction = 'RIGHT'
+
+            # Moving the snake
+        if direction == 'UP':
+            snake_Head[1] += 10
+        if direction == 'DOWN':
+            snake_Head[1] -= 10
+        if direction == 'LEFT':
+            snake_list_np[0] -= 10
+        if direction == 'RIGHT':
+            snake_list_np[0] += 10
+
         ##############################################
         ######## MOVE HAS BEEN TAKEN INTO ACCOUNT FOR THE SNAKE ########################
 
@@ -206,10 +228,10 @@ def game_loop():
             snake_length = snake_length + 1  # Extend snake and replace old food pellet
             # print("Yummy")
 
-        next_move = ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody)
-        print("NEXT MOVE : ", next_move)
 
-        clock.tick(snake_speed)  # 30 frames for every second
+
+
+
 
     pygame.quit()
     quit()  # Uninitialize everything at the end
@@ -227,11 +249,12 @@ def game_loop_Train():
     snake_list_np = np.array([])
     snake_list_np = np.append(snake_list_np, snake_Head)
     snake_length = 1
-    direction = 'RIGHT'
+
     # print("HIT1")
     ##[120, 100]
     foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+
 
     snake_list = []  # Contains the extended snake including head
 
@@ -241,7 +264,6 @@ def game_loop_Train():
 
         while game_close == True:
             dis.fill(white)
-            game_loop_Train()
             pygame.display.update()
 
 
@@ -271,61 +293,20 @@ def game_loop_Train():
             'moveSinceScore': moveSinceScore
             }
         Q.env(params)
+
+
         change_to = ''
-        alpha = 0.1
+        learning_rate = 0.1
         gamma = 0.2
-        e = 0.4
-        alphaD = 0.2
-        ed = 0.6
-        emin = 0.0001
-        act_bin= 4
+        epsilon = 0.4
 
 
-        choosenDirection = QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin) ## QLearning decider
 
-
-        if choosenDirection == 'U':
-            change_to = 'UP'
-            moveCounter += 1
-            moves.append(moveCounter)
-            moveSinceScore += 1
-        if choosenDirection == 'D':
-            change_to = 'DOWN'
-            moveCounter += 1
-            moves.append(moveCounter)
-            moveSinceScore += 1
-        if choosenDirection == 'L':
-            change_to = 'LEFT'
-            moveCounter += 1
-            moves.append(moveCounter)
-            moveSinceScore += 1
-        if choosenDirection == 'R':
-            change_to = 'RIGHT'
-            moveCounter += 1
-            moves.append(moveCounter)
-            moveSinceScore += 1
-
-
-        # Making sure the snake cannot move in the opposite direction instantaneously
-        if change_to == 'UP' and direction != 'DOWN' and direction != 'LEFT' and direction != 'RIGHT':
-            direction = 'UP'
-        if change_to == 'DOWN' and direction != 'UP' and direction != 'LEFT' and direction != 'RIGHT':
-            direction = 'DOWN'
-        if change_to == 'LEFT' and direction != 'RIGHT' and direction != 'UP' and direction != 'DOWN':
-            direction = 'LEFT'
-        if change_to == 'RIGHT' and direction != 'LEFT' and direction != 'UP' and direction != 'DOWN':
-            direction = 'RIGHT'
-
-        # Moving the snake
-        if direction == 'UP':
-            snake_Head[1] += 10
-        if direction == 'DOWN':
-            snake_Head[1] -= 10
-        if direction == 'LEFT':
-            snake_list_np[0] -= 10
-        if direction == 'RIGHT':
-            snake_list_np[0] += 10
-
+        Q.Q_train(params, epsilon, gamma, learning_rate)
+        shortestPath = 0
+        #shortestPath = Q.get_shortest_path(params, params['snake_pos'][0], params['snake_pos'][1])
+        #print(shortestPath)
+        #print(1)
     ###########################################################################################################################
 
         if x1 >= dis_width and x1 < 0 and y1 >= dis_height and y1 < 0:  # the case that the snake hits a border
@@ -372,6 +353,7 @@ def game_loop_Train():
             # print("Yummy")
 
 
+
     pygame.quit()
     quit()  # Uninitialize everything at the end
 
@@ -390,30 +372,22 @@ lastMoves = ""
 
 def states(params):
 
-    action = ["UP", "DOWN", "LEFT", 'RIGHT']
-    rewards = np.full([params['screenSizeX'], params['screenSizeY']], -100)
-    rewards[params['food_posx'], params['food_posy']]
-    moveableArea = {}
-
-    for i in range(1, params['screenSizeY']):
-        moveableArea = [i for i in range(1, params['screenSizeX'])] # come back to this
-
-    for row_index in range(1, params['screenSizeX']):
-        for column_index in moveableArea[row_index]:
-            rewards[row_index, column_index] = -1
 
 
 
 
-'''
+    '''
     global oldMoves
     relaFoodPosition = [0,0,0,0,0,0]#np.zeros(6)
     screenBorder = [0,0,0,0,0,0]#np.zeros(6)
     bodyProx = [0,0,0,0]#np.zeros(4)
     snakeBody = []
+
     RelaState = ""
     ScreenState = ""
     BodyState = ""
+
+
     if ((params["food_pos"][0] - params["snake_pos"][0]) > 0):
         relaFoodPosition[0] = 1
     if((params["food_pos"][0] - params["snake_pos"][0])< 0):
@@ -426,8 +400,10 @@ def states(params):
         relaFoodPosition[4] = 1
     if ((params["food_pos"][1] - params["snake_pos"][1]) == 0):
         relaFoodPosition[5] = 1
+
     for i in relaFoodPosition:
         RelaState += str(i)
+
     if (params["screenSizeX"] - params["snake_pos"][0] == 0):
         screenBorder[0] = 1
     if (params["screenSizeX"] - params["snake_pos"][0] == params["screenSizeX"]) -10:
@@ -440,17 +416,21 @@ def states(params):
     borderx2 = str(params["screenSizeX"] - params["snake_pos"][0])
     bordery = str(params["screenSizeY"] - params["snake_pos"][1])
     bordery2 = str(params["screenSizeY"] - params["snake_pos"][1])
+
     print("borderx:" +borderx )
     print("borderx:" +borderx2)
     print("bordery:" +bordery)
     print("bordery:" +bordery2)
+
     for i in screenBorder:
         ScreenState += str(i)
+
     next = 0
     for i in params["snake_body"]:
         if(next > 3):
             snakeBody.append(i)
         next+=1
+
     for bodyProx_ in snakeBody:
         if (params["snake_pos"][0] - bodyProx_[0] == 0 and params["snake_pos"][1] - bodyProx_[1] == 10):
             bodyProx[0] = 1
@@ -460,12 +440,16 @@ def states(params):
             bodyProx[2] = 1
         if (params["snake_pos"][0] - bodyProx_[0] == -10 and params["snake_pos"][1] - bodyProx_[1] == 0):
             bodyProx[3] = 1
+
     for i in bodyProx:
         BodyState += str(i)
     print(params["snake_pos"])
+
+
     direct = [params["snake_pos"][0],
               params["snake_pos"][1]]
                 ##(x,y)
+
     if (direct[0] == 10 and direct[1] == 0):
         direction = "RI"
     if (direct[0] == -10 and direct[1] == 0):
@@ -474,78 +458,14 @@ def states(params):
         direction = "UP"
     if (direct[0] == 0 and direct[1] == -10):
         direction = "DO"
+
+
     state = RelaState + "_" + ScreenState + "_" + BodyState + "_"
     print(state)
     return state
+
 '''
 
-def QLearning(params, Q, alpha, gamma, e, alphaD, ed, emin):
-    action = ["UP", "DOWN", "LEFT", 'RIGHT']
-
-
-
-
-
-
-'''global currState, currAction, gameCounter, start, end
-  choice = np.random.choice(['U', 'D', 'R', 'L'], p=[0.25, 0.25, 0.25, 0.25])
-  state = states(params)
-  futReward = Q[state]
-  currReward = Q[currState]
-  i = 0
-  if (currAction == 'U'):
-      i = 0
-  if (currAction == 'D'):
-      i = 1
-  if(currAction == 'R'):
-      i = 2
-  if(currAction == 'L'):
-      i = 3
-  ###Aproximate Q-Learning####
-  reward = ((0 - params["moveSinceScore"]) /50)
-  sample = alpha * (reward + gamma * max(futReward))
-  currReward[i] = (1-alpha) * currReward[i] + sample
-  Q[currState] = currReward
-  if FirstMove == False:
-      currAction = choice
-      return currAction
-  else:
-      if futReward[0] > (futReward[1] and futReward[2] and futReward[3] and futReward[4]):
-          currAction = 'U'
-          return currAction
-      if futReward[1] > (futReward[0] and futReward[2] and futReward[3] and futReward[4]):
-          currAction = 'D'
-          return currAction
-      if futReward[2] > (futReward[0] and futReward[1] and futReward[3] and futReward[4]):
-          currAction = 'R'
-          return currAction
-      if futReward[3] > (futReward[0] and futReward[1] and futReward[2] and futReward[4]):
-          currAction = 'L'
-          return currAction
-      else:
-          currAction = choice
-          return currAction
-  if (gameCounter % 200 == 0):
-      with open("Q_val" + ".pickle", "wb") as Q_val:
-          pickle.dump(dict(Q), Q_val)
-  if (gameCounter % 100 == 1):
-      end = time()
-      timeD = end-start
-      start = time()
-  if gameCounter % 100 == 0:
-      alpha = alpha * alphaD
-      if e > emin:
-          e = e / ed
-  gameCounter += 1
-  if (gameState == "NORM"):
-      reward = ((0 - params["moveSinceScore"]) /50)
-      reward = (reward + gamma * max(futReward))
-  if (gameState == "SCORE"):
-      reward = (rewardScore + gamma * max(futReward))
-  if (gameState == "GAMEOVER"):
-      reward = rewardKill
-  sample = alpha * reward
-  currReward[i] = (1-alpha) * currReward[i] + sample '''
 
 def ValueIteration(dis_height, dis_width, snake_list_np, foodx, foody):
     rows = 2 + (dis_height / 10)
