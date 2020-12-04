@@ -28,11 +28,14 @@ def env(params):
 def is_terminal_state(current_row_index, current_column_index):
     #print(current_column_index)
     #print(current_row_index)
-    if rewards[int(2+current_row_index/10), int(2+current_column_index/10)] == -1 or rewards[int(2+current_row_index/10), int(2+current_column_index/10)] == 5:
-        #print(rewards)
+    if rewards[int(2+current_row_index), int(2+current_column_index)] == -1 or rewards[int(2+current_row_index), int(2+current_column_index)] == 5:
+        print(rewards[int(2+current_row_index), int(2+current_column_index)])
+       # print(current_column_index)
+       # print(current_row_index)
         return False
-    elif rewards[int(2+current_row_index/10), int(2+current_column_index/10)] == -100:
-        #print(rewards)
+    elif rewards[2 + int(current_row_index), 2 + int(current_column_index)] == -100:
+        #print(current_column_index)
+        #print(current_row_index)
         return True
 
 def get_starting_location(params):
@@ -95,7 +98,7 @@ def Q_train(params, epsilon, gamma, learning_rate):
         #print(column_index)
 
         while not is_terminal_state(row_index, column_index):
-
+           # print(is_terminal_state(row_index, column_index))
             action_check = get_next_action(params, row_index, column_index, epsilon)
 
             #print(action_check)
@@ -117,7 +120,7 @@ def Q_train(params, epsilon, gamma, learning_rate):
 
             new_q_value = old_q_value + (learning_rate * temporal_difference)
             q_values[int(old_row_index), int(old_column_index)] = new_q_value
-            print(q_values)
+            #print(q_values)
             #print(q_values)
 
 print("training complete")
