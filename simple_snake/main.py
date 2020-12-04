@@ -35,7 +35,7 @@ y1 = 50  # initial value for y
 x1_change = 0
 y1_change = 0
 snake_block = 10    #Size of the snake
-snake_speed = 3    #Amount of frames per second (original is 15)
+snake_speed = 10    #Amount of frames per second (original is 15)
 
 font_style = pygame.font.SysFont(None, 50)
 
@@ -828,6 +828,7 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1,prev_dir
             for j in range(1,int(columns)-1) :
                 val = grid[i-1][j]+grid[i+1][j]+grid[i][j-1]+grid[i][j+1]+grid[i][j]
                 grid_copy[i][j] = val
+                grid_copy[int(snake_heady) + 1][int(snake_headx) + 1] = 0
         grid = grid_copy
 
     foodx = foodx / 10
@@ -848,11 +849,13 @@ def ValueIteration(dis_height,dis_width,snake_list_np,foodx,foody,x1,y1,prev_dir
         grid[int(i)][0] = -100000
         grid[int(i)][int(columns)-1] = -100000
 
+    """
     grid_copy[int(snake_heady)+1][int(snake_headx)+1] = 0
     grid = grid_copy
+    """
         #print("X and Y coordinates: ", x, " ", y)
 
-    print(grid_copy)
+    print(grid)
 
     next_move_y = "null"
     next_move_x = "null"
