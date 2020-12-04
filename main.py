@@ -1,5 +1,4 @@
 
-
 import pygame
 import time
 import random
@@ -59,8 +58,8 @@ def main_menu():
                 if event.key == pygame.K_t:  # User presses 1
                     sn.game_loop_Train()
                     menu = False
-                if event.key == pygame.K_2:  # User presses 2
-                    ##game_loop2()
+                if event.key == pygame.K_p:  # User presses 2
+                    sn.game_loop_Q()
                     menu = False
 
         dis.blit(backgroundmenu, (0, 0))
