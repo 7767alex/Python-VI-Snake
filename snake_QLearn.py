@@ -1,5 +1,8 @@
 # This is a sample Python script.
-
+#author Travis Quigg
+#current issues:
+#body isn't in the grid
+# isn't emulating moves in game
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 import pygame
