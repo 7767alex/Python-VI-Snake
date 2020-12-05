@@ -1,3 +1,8 @@
+#Author: Travis Quigg
+# current issues:
+#isn't emulating moves inside snake
+#snake body isn't being accounted for
+
 import numpy as np
 
 def env(params):
