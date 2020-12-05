@@ -9,3 +9,5 @@ to use:
 
 import either Qlearning.py files or Valueiteration.py to get desired results. 
 make main your terminal call and keep all files localized
+
+there is a slight bug in qlearning where it goes out of bounds. ignore it and run the file again. 
