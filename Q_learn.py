@@ -103,6 +103,13 @@ def get_shortest_path(params, start_row_index, start_column_index):
             shortest_path.append([current_row_index, current_column_index])
 
         return action_index
+def Q_learnAlg(params, row_index, column_index):
+    if ((2 + params['snake_pos'][0] / 10) == (2 + params['screenSizeX'] / 10) or (2 + params['snake_pos'][1] / 10) == (2 + params['screenSizeY'] / 10)):
+        reward = -100
+        return reward
+    else:
+        reward = rewards[int(row_index - 1), int(column_index)]
+        return reward
 
 def Q_train(params, epsilon, gamma, learning_rate):
     for episode in range(100000000000000000):
@@ -127,11 +134,7 @@ def Q_train(params, epsilon, gamma, learning_rate):
             #print(get_next_location(params, row_index, column_index, action_index))
             row_index, column_index = get_next_location(params, row_index, column_index, action_index)
             #print(get_next_location(params, row_index, column_index, action_index))
-            if((2+params['snake_pos'][0] /10) == (2+ params['screenSizeX']/10) or (2+params['snake_pos'][1] /10) == (2+ params['screenSizeY']/10)):
-                reward = -100
-            else:
-                reward = rewards[int(row_index-1), int(column_index-1)]
-                print(reward)
+            reward = Q_learnAlg(params, row_index, column_index)
             old_q_value = q_values[int(old_row_index), int(old_column_index), int(action_index)]
             temporal_difference = reward + (gamma * np.max(q_values[2])) - old_q_value
 
@@ -146,4 +149,3 @@ def Q_train(params, epsilon, gamma, learning_rate):
         #print("done")
 
     print("training complete")
-            #print(q_values)
