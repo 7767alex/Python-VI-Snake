@@ -150,7 +150,11 @@ def Q_train(params, epsilon, gamma, learning_rate):
             if (int(2+params['snake_pos'][0]/10) == int(2+params['food_posx']/10) and int(2+params['snake_pos'][1]/10) == int(2+params['food_posy']/10)):
                 victory += 1
                 print("victory!!!")
-    print("TimesFoodEaten: " + str(victory))
+            if (int(2+params['snake_pos'][0]/10) == int(2+ params['screenSizeX']/10) and int(2+params['food_posy']/10) == int(2+ params['screenSizeY']/10)):
+                victory -= 1
+                print("dang")
+
+    print("TimesFoodEatenFullRound: " + str(victory))
 
 
 
@@ -162,3 +166,4 @@ def Q_train(params, epsilon, gamma, learning_rate):
 
     print("training complete")
             #print(q_values)
+
