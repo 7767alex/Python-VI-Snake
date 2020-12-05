@@ -116,6 +116,7 @@ def Q_learnAlg(params, row_index, column_index):
 
 def Q_train(params, epsilon, gamma, learning_rate):
     victory = 0
+    eaten = 0
     for episode in range(1000):
         row_index, column_index = get_starting_location(params)
         row_index = row_index
@@ -149,12 +150,14 @@ def Q_train(params, epsilon, gamma, learning_rate):
 
             if (int(2+params['snake_pos'][0]/10) == int(2+params['food_posx']/10) and int(2+params['snake_pos'][1]/10) == int(2+params['food_posy']/10)):
                 victory += 1
+                eaten += 1
                 print("victory!!!")
             if (int(2+params['snake_pos'][0]/10) == int(2+ params['screenSizeX']/10) and int(2+params['food_posy']/10) == int(2+ params['screenSizeY']/10)):
                 victory -= 1
                 print("dang")
 
     print("TimesFoodEatenFullRound: " + str(victory))
+    print("TotalFoodEaten: " + str(eaten))
 
 
 
