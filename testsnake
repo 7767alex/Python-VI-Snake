@@ -44,6 +44,29 @@ def our_snake(snake_block,snake_list_np) :     #Extend the snake
     #for a in snake_list:
     #    print("A value in our_snake",a)
     #    pygame.draw.rect(dis,black,[a[0],a[1],snake_block,snake_block])
+def check_food(obstacle_array):
+    obstacles = obstacle_array.shape
+    num_obstacles = (obstacles[0] / 2)
+
+    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+
+    # print("FOOD X ", foodx)
+    # print("FOOD Y ", foody)
+
+    while (True):
+        temp = []
+        for a in range(int(num_obstacles)):
+            if (int(obstacle_array[a * 2]) == foodx and int(obstacle_array[a * 2 + 1]) == foody):
+                foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+                foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+                temp = [foodx, foody]
+        temp.append(foodx)
+        temp.append(foody)
+        # print("TEMP", temp)
+        # print("FOOD X ", foodx)
+        # print("FOOD Y ", foody)
+        return temp
 
 def game_loop_QResult():
     game_over = False
@@ -68,9 +91,11 @@ def game_loop_QResult():
 
     prev_direction = "LEFT"
     next_move = "LEFT"
+
     while (not game_over):
         while game_close == True:
             dis.fill(white)
+            message("Press Q to quit or C to Play")
             pygame.display.update()
 
             ############    AGENT ACTION SHOULD BE DETERMINED BY HERE   ############
@@ -92,11 +117,11 @@ def game_loop_QResult():
                 x1_change = snake_block
                 y1_change = 0
             if event.key == pygame.K_UP:  # Case of up key
-                 # print("HIT")
+                # print("HIT")
                 y1_change = -snake_block
                 x1_change = 0
             if event.key == pygame.K_DOWN:  # Case of down key
-                 # print("HIT")
+                # print("HIT")
                 y1_change = snake_block
                 x1_change = 0
 
@@ -199,8 +224,30 @@ def game_loop_QResult():
 
         }
 
-        next_move = Q.get_shortest_path(params, (2+params['snake_pos'][0]/10), (2+params['snake_pos'][1]/10))
-        print("Next MOVE: ", next_move)
+        Q.env(params)
+        row_index, column_index = Q.get_starting_location(params)
+        row_index = row_index
+        column_index = column_index
+        learning_rate = 0.2
+        gamma = 0.8
+        epsilon = 0.3
+        # new = 1
+        # print(row_index)
+        # print(column_index)
+        # print(row_index, column_index)
+        victory = 0
+        if not Q.is_terminal_state(params, row_index, column_index):
+            action_index = Qlearn(params, epsilon, gamma, learning_rate,row_index, column_index,victory)
+            print("Next MOVE: ", next_move)
+            if action_index == 0:
+                next_move = "up"
+            if action_index == 1:
+                next_move = "down"
+            if action_index == 2:
+                next_move = "left"
+            if action_index == 3:
+                next_move = "right"
+
         prev_direction = next_move
         #newevent = pygame.event.Event(pygame.KEYDOWN, unicode = "left arrow", key =pygame.k_a, mod=pygame.KMOD_NONE)
         pygame.event.post(newevent)
@@ -209,55 +256,60 @@ def game_loop_QResult():
     pygame.quit()
     quit()
 
-def train():
-    x1 = dis_width / 2  # initial value for x
-    y1 = dis_height / 2 # initial value for y
+
+def Q_learnAlg(params, row_index, column_index):
+    if ((2 + params['snake_pos'][0] / 10) == (2 + params['screenSizeX'] / 10) or (2 + params['snake_pos'][1] / 10) == (2 + params['screenSizeY'] / 10)):
+        reward = -100
+        return reward
+    else:
+        reward = Q.rewards[int(row_index - 1), int(column_index-1)]
+        return reward
+def Qlearn(params, epsilon, gamma, learning_rate,row_index, column_index,victory):
+    # print("in while loop")
+    # print(is_terminal_state(row_index, column_index))
+    action_index = Q.get_next_action(params, row_index, column_index, epsilon)
+
+    print(" ")
+    print("snakePos: " + " X: " + str(2 + params['snake_pos'][0] / 10) + " y" + str(2 + params['snake_pos'][1] / 10))
+    print("FoodPos: " + " X: " + str(2 + params['food_posx'] / 10) + " Y: " + str(2 + params['food_posy'] / 10))
+    print("BorderPos: " + " X: " + str(2 + params['screenSizeX'] / 10) + " Y: " + str(2 + params['screenSizeY'] / 10))
+    print(" ")
+    print("nextMove:")
+
+    # print(column_index)
+
+    old_row_index, old_column_index = row_index, column_index
+    # print(get_next_location(params, row_index, column_index, action_index))
+    row_index, column_index = Q.get_next_location(params, row_index, column_index, action_index)
+    # print(get_next_location(params, row_index, column_index, action_index))
+    reward = Q_learnAlg(params, row_index, column_index)
+    old_q_value = Q.q_values[int(old_row_index), int(old_column_index), int(action_index)]
+    temporal_difference = reward + (gamma * np.max(Q.q_values[2])) - old_q_value
+
+    new_q_value = old_q_value + (learning_rate * temporal_difference)
+    Q.q_values[int(old_row_index), int(old_column_index)] = new_q_value
+
+    if (int(2 + params['snake_pos'][0] / 10) == int(2 + params['food_posx'] / 10) and int(
+            2 + params['snake_pos'][1] / 10) == int(2 + params['food_posy'] / 10)):
+        victory += 1
+
+        # print("victory!!!")
+    if (int(2 + params['snake_pos'][0] / 10) == int(2 + params['screenSizeX'] / 10) and int(
+            2 + params['food_posy'] / 10) == int(2 + params['screenSizeY'] / 10)):
+        victory -= 1
+        print("dang")
+    return action_index
 
 
-    x1_change = 0
-    y1_change = 0
+    print(" ")
+    print("training complete")
+    print(" ")
+    print("summary of training:")
+    print("TimesFoodEatenFullRound: " + str(victory))
+    print(" ")
+    print("shortest Path: ")
+    print(" ")
 
-    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-
-    snake_list = []
-    snake_length = 1
-    snake_list_np = np.array([])
-
-    x1 = x1 + x1_change  # Updated y and x positions of snake
-    y1 = y1 + y1_change
-
-    dis.fill(white)  # Fil display with white
-
-    snake_Head = [x1, y1]
-
-    snake_list_np = np.append(snake_list_np, snake_Head)
-    row = snake_list_np.shape
-    snake_len = (row[0] / 2)
-
-    params = {
-        'food_posx': foodx,
-        'food_posy': foody,
-        'snake_pos': snake_Head,
-        'snake_body': snake_list_np,
-        'score': snake_length,
-        'screenSizeX': dis_width,
-        'screenSizeY': dis_height,
-
-    }
-
-    environment = Q.env(params)
-
-    change_to = ''
-    learning_rate = 0.2
-    gamma = 0.8
-    epsilon = 0.3
-
-    Q.Q_train(params, epsilon, gamma, learning_rate)
-    #game_loop_Q(environment)
-
-
-train()
 game_loop_QResult()
 
 
