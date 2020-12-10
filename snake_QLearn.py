@@ -3,8 +3,8 @@
 #current issues:
 #body isn't in the grid
 # isn't emulating moves in game
-# Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+''' Notes For Instructor:  This is made to work for Q_learn.py. check the updated files to see emulated moves. Display is still not working'''
 import pygame
 import random
 import numpy as np
