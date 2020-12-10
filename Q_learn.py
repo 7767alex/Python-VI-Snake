@@ -2,6 +2,8 @@
 # current issues:
 #isn't emulating moves inside snake
 #snake body isn't being accounted for
+''' Notes For Instructor: This is the presented project. All variables are the same as the collab. If you are curious about the collab email me about it on canvas since
+I get my notifications from there. The concept is there and I have thoroughly studied it. Ask any questions that you may have to my canvas email.'''
 
 import numpy as np
 
