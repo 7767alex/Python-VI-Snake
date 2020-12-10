@@ -4,7 +4,8 @@
 #body isn't in the grid
 # isn't emulating moves in game
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-''' Notes For Instructor:  This is made to work for Q_learn.py. check the updated files to see emulated moves. Display is still not working'''
+''' Notes For Instructor:  This is made to work for Q_learn.py. check the updated files to see emulated moves. Display is still not working. Algorithm had to be rewritten twice. The first algorithm 
+moved around but only left to right.'''
 import pygame
 import random
 import numpy as np
