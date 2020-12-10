@@ -2,6 +2,10 @@
 
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+''' Notes For Instructor: This is the updated project. All variables are the same as the collab FOR READABILITY AMONG THE GROUP. If you are curious about the collab email me about it on canvas since
+I get my notifications from there. This is work done after the presentation on Tuesday. I managed to get the moves to work and I wanted to see the QLearning train in
+action. The concept is there and I have thoroughly studied it. Ask any questions that you may have to my canvas email.'''
+
 import pygame
 import random
 import time
